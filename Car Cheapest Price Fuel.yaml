@@ -1,0 +1,105 @@
+alias: Carbu
+description: |-
+  Update info to show on dashboard (input_text.carbu_info)
+  Update text input_text.carbu_coord For navigation (scripts)
+triggers:
+  - entity_id:
+      - binary_sensor.gsm_1_android_auto
+    to: "on"
+    id: Person1
+    trigger: state
+  - entity_id:
+      - binary_sensor.gsm_2_android_auto
+    to: "on"
+    id: Person2
+    trigger: state
+  - event: start
+    id: Start
+    trigger: homeassistant
+  - event_type: carbu_com_lowest_fuel_price_on_route_coor
+    trigger: event
+    id: On the way back
+  - event_type: carbu_com_lowest_fuel_price
+    trigger: event
+    id: 5km
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - Person1
+              - Person2
+              - Start
+        sequence:
+          - metadata: {}
+            data:
+              value: >-
+                {{ state_attr('sensor.carbu_com_super95_8380_5km', 'address') |
+                default('Address not available') }}
+            target:
+              entity_id: input_text.benzine_5km
+            action: input_text.set_value
+          - metadata: {}
+            data:
+              value: >-
+                {{ state_attr('sensor.carbu_com_super95_8380_10km', 'address') |
+                default('Address not available') }}
+            target:
+              entity_id: input_text.benzine_10km
+            action: input_text.set_value
+      - conditions:
+          - condition: trigger
+            id:
+              - On the way back
+        sequence:
+          - target:
+              entity_id: input_text.carbu_info
+            data:
+              value: |
+                Supplier: {{ trigger.event.data.supplier }} 
+                Price: {{trigger.event.data.price }}€
+                Distance: {{ trigger.event.data.distance }}km
+                Address: {{ trigger.event.data.address }}
+            action: input_text.set_value
+          - target:
+              entity_id: input_text.carbu_coord
+            data:
+              value: |
+                Address: {{ trigger.event.data.address }}
+            action: input_text.set_value
+          - data:
+              message: >-
+                Supplier: {{ trigger.event.data.supplier }}  Price:
+                {{trigger.event.data.price }}€ Distance: {{
+                trigger.event.data.distance }}km Address: {{
+                trigger.event.data.address }}
+            action: notify.persistent_notification
+      - conditions:
+          - condition: trigger
+            id:
+              - 5km
+        sequence:
+          - target:
+              entity_id: input_text.carbu_info
+            data:
+              value: |
+                Supplier: {{ trigger.event.data.supplier }} 
+                Price: {{trigger.event.data.price }}€
+                Distance: {{ trigger.event.data.distance }}km
+                Address: {{ trigger.event.data.address }}
+            action: input_text.set_value
+          - target:
+              entity_id: input_text.carbu_coord
+            data:
+              value: |
+                Address: {{ trigger.event.data.address }}
+            action: input_text.set_value
+          - data:
+              message: >-
+                Supplier: {{ trigger.event.data.supplier }}  Price:
+                {{trigger.event.data.price }}€ Distance: {{
+                trigger.event.data.distance }}km Address: {{
+                trigger.event.data.address }}
+            action: notify.persistent_notification
+mode: single
