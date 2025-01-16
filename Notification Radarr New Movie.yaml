@@ -1,0 +1,16 @@
+alias: Webhook Radarr
+description: "Get a Notification when Radarr finds a movie from your watchlist"
+mode: single
+triggers:
+  - allowed_methods:
+      - POST
+      - PUT
+    local_only: true
+    webhook_id: "YOUR WEBHOOK"
+    trigger: webhook
+conditions: []
+actions:
+  - data:
+      message: 🍿{{trigger['json']['movie']['title']}}🍿
+      title: New Movie!!
+    action: notify.mobile_app_gsm_1
