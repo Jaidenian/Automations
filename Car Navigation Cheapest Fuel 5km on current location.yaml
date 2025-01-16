@@ -1,0 +1,27 @@
+alias: Navigatie Pesron 1 Benzine 5km GSM Location
+description: Start Navigation Based on Phone location
+sequence:
+  - action: carbu_com.get_lowest_fuel_price
+    data:
+      fuel_type: super95
+      country: BE
+      postalcode: >-
+        {{ state_attr('sensor.gsm_1_geocoded_location', 'postal_code')
+        }}
+      town: "{{ state_attr('sensor.gsm_1_geocoded_location', 'locality') }}"
+      max_distance: 5
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 10
+      milliseconds: 0
+  - action: notify.mobile_app_gsm_1
+    data:
+      data:
+        intent_package_name: com.google.android.apps.maps
+        intent_action: android.intent.action.VIEW
+        intent_uri: >-
+          google.navigation:q={{ states('input_text.carbu_coord') |
+          replace('Address: ', '') }}&mode=d
+      message: command_activity
+
