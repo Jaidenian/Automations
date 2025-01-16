@@ -1,0 +1,25 @@
+alias: Navigation Person1 On the way home
+description: Start navigation 5km on your current location, returning home
+sequence:
+  - action: carbu_com.get_lowest_fuel_price_on_route_coor
+    data:
+      fuel_type: super95
+      from_latitude: "{{ state_attr('device_tracker.gsm_1', 'latitude') }}"
+      from_longitude: "{{ state_attr('device_tracker.gsm_1', 'longitude') }}"
+      to_latitude: {{YOUR HOME}}
+      to_longitude: {{YOUR HOME}}
+  - delay:
+      hours: 0
+      minutes: 0
+      seconds: 15
+      milliseconds: 0
+  - data:
+      message: command_activity
+      data:
+        intent_package_name: com.google.android.apps.maps
+        intent_action: android.intent.action.VIEW
+        intent_uri: >-
+          google.navigation:q={{ states('input_text.carbu_coord') |
+          replace('Address: ', '') }}&mode=d
+    action: notify.mobile_app_gsm_1
+icon: mdi:gas-station
