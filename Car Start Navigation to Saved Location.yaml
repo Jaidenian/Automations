@@ -1,0 +1,11 @@
+alias: Parkeerlocatie navigatie
+sequence:
+  - data:
+      message: command_activity
+      data:
+        intent_package_name: com.google.android.apps.maps
+        intent_action: android.intent.action.VIEW
+        intent_uri: >-
+          google.navigation:q={{ states('input_text.parkeerlocatie_invoer')
+          }}&mode=w
+    action: notify.mobile_app_gsm_1
