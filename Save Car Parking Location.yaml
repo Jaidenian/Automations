@@ -1,0 +1,79 @@
+alias: Save Car Parking Location
+description: "Save Location of the car based on bluetooth connection"
+mode: single
+triggers:
+  - entity_id:
+      - binary_sensor.gsm_1_android_auto
+    to: "off"
+    id: Benji
+    trigger: state
+  - entity_id:
+      - binary_sensor.gsm_2_android_auto
+    to: "off"
+    id: Marlies
+    trigger: state
+  - event: start
+    id: Start
+    trigger: homeassistant
+conditions: []
+actions:
+  - choose:
+      - conditions:
+          - condition: trigger
+            id:
+              - Person1
+        sequence:
+          - metadata: {}
+            data:
+              dev_id: device_tracker_parkeer_locatie
+              location_name: "{{ states('sensor.gsm_1_geocoded_location') }}"
+              gps:
+                - "{{ state_attr('device_tracker.gsm_1', 'latitude') }}"
+                - "{{ state_attr('device_tracker.gsm_1', 'longitude') }}"
+            action: device_tracker.see
+          - metadata: {}
+            data:
+              message: >-
+                Parkeerlocatie opgeslaan "{{ states
+                ('sensor.gsm_1_geocoded_location') }}"
+            enabled: true
+            action: notify.mobile_app_gsm_1
+          - metadata: {}
+            data:
+              value: "{{ states('sensor.gsm_1_geocoded_location') }}"
+            target:
+              entity_id: input_text.parkeerlocatie_invoer
+            action: input_text.set_value
+      - conditions:
+          - condition: trigger
+            id:
+              - Person2
+        sequence:
+          - metadata: {}
+            data:
+              dev_id: device_tracker_parkeer_locatie
+              location_name: "{{ states ('sensor.gsm_2_geocoded_location') }}"
+            action: device_tracker.see
+          - metadata: {}
+            data:
+              message: >-
+                Parkeerlocatie opgeslaan "{{ states
+                ('sensor.gsm_2_geocoded_location') }}"
+            enabled: false
+            action: notify.mobile_app_gsm_2
+          - metadata: {}
+            data:
+              value: "{{ states ('sensor.gsm_2_geocoded_location') }}"
+            target:
+              entity_id: input_text.parkeerlocatie_invoer
+            action: input_text.set_value
+      - conditions:
+          - condition: trigger
+            id:
+              - Start
+        sequence:
+          - metadata: {}
+            data:
+              dev_id: device_tracker_parkeer_locatie
+              location_name: "{{ states ('input_text.parkeerlocatie_invoer') }}"
+            action: device_tracker.see
